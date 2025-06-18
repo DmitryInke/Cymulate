@@ -83,4 +83,8 @@ export class User {
  * Export compiled Mongoose schema for User collection
  * Used in UserModule to register the schema with MongoDB
  */
-export const UserSchema = SchemaFactory.createForClass(User); 
+export const UserSchema = SchemaFactory.createForClass(User);
+
+// MongoDB Indexes for query optimization
+// Email index for fast authentication lookups (unique is already handled by @Prop)
+UserSchema.index({ email: 1 }); 

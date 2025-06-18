@@ -140,4 +140,12 @@ export class PhishingAttempt {
  * Export compiled Mongoose schema for PhishingAttempt collection
  * Used in PhishingModule to register the schema with MongoDB
  */
-export const PhishingAttemptSchema = SchemaFactory.createForClass(PhishingAttempt); 
+export const PhishingAttemptSchema = SchemaFactory.createForClass(PhishingAttempt);
+
+// MongoDB Indexes for query optimization
+// Compound index for user-specific queries with sorting
+PhishingAttemptSchema.index({ createdBy: 1, createdAt: -1 });
+
+// Single field indexes for filtering
+PhishingAttemptSchema.index({ status: 1 });
+PhishingAttemptSchema.index({ recipientEmail: 1 }); 

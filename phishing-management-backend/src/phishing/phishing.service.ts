@@ -98,25 +98,33 @@ export class PhishingService {
   async getAllAttempts(userId: string): Promise<PhishingAttempt[]> {
     return this.phishingAttemptModel
       .find({ createdBy: userId })
+      .select('recipientEmail subject status createdAt clickedAt sentAt') // Only select needed fields
       .sort({ createdAt: -1 })
+      .lean() // Return plain objects instead of Mongoose documents (faster)
       .exec();
   }
 
   async markAsClicked(attemptId: string): Promise<PhishingAttempt> {
-    const attempt = await this.phishingAttemptModel.findById(attemptId);
+    // Use findByIdAndUpdate for atomic operation (more efficient)
+    const attempt = await this.phishingAttemptModel.findByIdAndUpdate(
+      attemptId,
+      {
+        $set: {
+          status: PhishingStatus.CLICKED,
+          clickedAt: new Date(),
+        },
+      },
+      {
+        new: true, // Return updated document
+        runValidators: true,
+      }
+    );
     
     if (!attempt) {
       throw new NotFoundException('Phishing attempt not found');
     }
 
-    if (attempt.status === PhishingStatus.CLICKED) {
-      return attempt; // Already clicked
-    }
-
-    attempt.status = PhishingStatus.CLICKED;
-    attempt.clickedAt = new Date();
-    
-    return attempt.save();
+    return attempt;
   }
 
   /**

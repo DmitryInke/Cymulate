@@ -249,8 +249,7 @@ All services use structured logging:
 
 ### Performance
 - TCP communication between backend services
-- Optimized MongoDB queries
-- Browser-level caching
+- Optimized MongoDB queries with indexes and projections
 
 ## 🔧 Customization
 
