@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
-import { SendPhishingEmailDto, SendEmailResponse } from '../common/dto/email.dto';
+import { SendPhishingEmailDto, SendEmailResponse } from './dto/email.dto';
 
 /**
  * Email service responsible for sending phishing simulation emails

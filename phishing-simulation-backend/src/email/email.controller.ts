@@ -1,7 +1,7 @@
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { EmailService } from './email.service';
-import { SendPhishingEmailDto, SendEmailResponse, TCP_PATTERNS } from '../common/dto/email.dto';
+import { SendPhishingEmailDto, SendEmailResponse, TCP_PATTERNS } from './dto/email.dto';
 
 /**
  * Email controller for TCP microservice communication
