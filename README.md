@@ -134,7 +134,7 @@ You can customize these values by editing the `.env` file before running `docker
 ```
 Cymulate/
 ├── docker-compose.yml           # Main Docker Compose file
-├── .env                   # Environment variables
+├── .env                         # Environment variables
 ├── env.example                  # Example environment file
 ├── phishing-frontend/           # React application
 │   ├── Dockerfile
