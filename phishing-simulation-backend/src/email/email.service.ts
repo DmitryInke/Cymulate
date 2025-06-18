@@ -174,19 +174,4 @@ export class EmailService {
       .replace(/\s+/g, ' ')    // Normalize whitespace
       .trim();
   }
-
-  /**
-   * Health check method for service monitoring
-   * Verifies SMTP connection and service readiness
-   * 
-   * @returns Promise<boolean> - true if service is healthy, false otherwise
-   */
-  async healthCheck(): Promise<boolean> {
-    try {
-      await this.transporter.verify();
-      return true;
-    } catch {
-      return false;
-    }
-  }
 } 

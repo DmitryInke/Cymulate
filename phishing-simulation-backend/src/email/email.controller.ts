@@ -11,7 +11,6 @@ import { SendPhishingEmailDto, SendEmailResponse, TCP_PATTERNS } from './dto/ema
  * - TCP message pattern handling for email operations
  * - Payload validation and processing
  * - Error handling for microservice communication
- * - Health check endpoints for service monitoring
  */
 @Controller()
 export class EmailController {
@@ -65,37 +64,6 @@ export class EmailController {
           message: error.message || 'Unknown error',
           details: process.env.NODE_ENV === 'development' ? error : undefined,
         },
-      };
-    }
-  }
-
-  /**
-   * Handles health check requests via TCP
-   * 
-   * @returns Promise<object> - Service health status
-   * 
-   * This endpoint allows Management service to verify that
-   * Simulation service is running and ready to process requests
-   */
-  @MessagePattern(TCP_PATTERNS.HEALTH_CHECK)
-  async handleHealthCheck(): Promise<{ status: string; timestamp: Date; emailServiceReady: boolean }> {
-    this.logger.log('Received health check request via TCP');
-    
-    try {
-      const emailServiceReady = await this.emailService.healthCheck();
-      
-      return {
-        status: emailServiceReady ? 'healthy' : 'degraded',
-        timestamp: new Date(),
-        emailServiceReady,
-      };
-    } catch (error) {
-      this.logger.error('Health check failed:', error);
-      
-      return {
-        status: 'unhealthy',
-        timestamp: new Date(),
-        emailServiceReady: false,
       };
     }
   }

@@ -137,20 +137,6 @@ export class TemplateService {
   }
 
   /**
-   * Get template by ID
-   */
-  static getTemplateById(id: string): EmailTemplate | null {
-    return EMAIL_TEMPLATES.find(template => template.id === id) || null;
-  }
-
-  /**
-   * Get templates by category
-   */
-  static getTemplatesByCategory(category: EmailTemplate['category']): EmailTemplate[] {
-    return EMAIL_TEMPLATES.filter(template => template.category === category);
-  }
-
-  /**
    * Get default template (fallback)
    */
   static getDefaultTemplate(): EmailTemplate {

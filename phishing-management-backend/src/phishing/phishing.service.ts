@@ -102,19 +102,6 @@ export class PhishingService {
       .exec();
   }
 
-  async getAttemptById(id: string, userId: string): Promise<PhishingAttempt> {
-    const attempt = await this.phishingAttemptModel.findOne({ 
-      _id: id, 
-      createdBy: userId 
-    });
-    
-    if (!attempt) {
-      throw new NotFoundException('Phishing attempt not found');
-    }
-    
-    return attempt;
-  }
-
   async markAsClicked(attemptId: string): Promise<PhishingAttempt> {
     const attempt = await this.phishingAttemptModel.findById(attemptId);
     
@@ -138,23 +125,5 @@ export class PhishingService {
    */
   async getAllTemplates(): Promise<EmailTemplate[]> {
     return TemplateService.getAllTemplates();
-  }
-
-  /**
-   * Get template by ID
-   * @param templateId - Template identifier
-   * @returns EmailTemplate or null if not found
-   */
-  async getTemplateById(templateId: string): Promise<EmailTemplate | null> {
-    return TemplateService.getTemplateById(templateId);
-  }
-
-  /**
-   * Get templates by category
-   * @param category - Template category
-   * @returns Array of EmailTemplate objects in the specified category
-   */
-  async getTemplatesByCategory(category: EmailTemplate['category']): Promise<EmailTemplate[]> {
-    return TemplateService.getTemplatesByCategory(category);
   }
 } 

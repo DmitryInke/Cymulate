@@ -2,7 +2,7 @@ import { IsEmail, IsString, MinLength } from 'class-validator';
 
 /**
  * Data Transfer Object for sending phishing emails via TCP
- * Synchronized with Simulation service DTOs for consistent communication
+ * Used for communication between Management and Simulation services
  */
 export class SendPhishingEmailDto {
   @IsEmail({}, { message: 'Please provide a valid recipient email address' })
@@ -22,8 +22,8 @@ export class SendPhishingEmailDto {
 }
 
 /**
- * Response interface for TCP email sending operations
- * Matches the response format from Simulation service
+ * Response object for email sending operations
+ * Returned by Simulation service to Management service via TCP
  */
 export interface SendEmailResponse {
   success: boolean;
@@ -38,9 +38,7 @@ export interface SendEmailResponse {
 
 /**
  * TCP message patterns for microservice communication
- * Must match patterns defined in Simulation service
  */
 export const TCP_PATTERNS = {
   SEND_PHISHING_EMAIL: 'send_phishing_email',
-  HEALTH_CHECK: 'health_check',
 } as const; 

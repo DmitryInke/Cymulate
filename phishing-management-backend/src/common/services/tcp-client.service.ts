@@ -12,7 +12,6 @@ import { SendPhishingEmailDto, SendEmailResponse, TCP_PATTERNS } from '../dto/tc
  * - Automatic connection management with retry logic
  * - Timeout handling for TCP requests
  * - Error handling and logging
- * - Health checks for service monitoring
  */
 @Injectable()
 export class TcpClientService implements OnModuleInit, OnModuleDestroy {
@@ -111,46 +110,5 @@ export class TcpClientService implements OnModuleInit, OnModuleDestroy {
         },
       };
     }
-  }
-
-  /**
-   * Performs health check on Simulation service via TCP
-   * 
-   * @returns Promise<boolean> - true if service is healthy, false otherwise
-   * 
-   * Used for service monitoring and dependency health checks
-   */
-  async healthCheck(): Promise<boolean> {
-    try {
-      this.logger.debug('Performing TCP health check on Simulation service');
-
-      const response = await firstValueFrom(
-        this.client
-          .send(TCP_PATTERNS.HEALTH_CHECK, {})
-          .pipe(timeout(5000)) // 5-second timeout for health checks
-      );
-
-      const isHealthy = response?.status === 'healthy' || response?.status === 'degraded';
-      
-      this.logger.debug(`Simulation service health check result: ${response?.status}`);
-      
-      return isHealthy;
-
-    } catch (error) {
-      this.logger.warn('Simulation service health check failed:', error.message);
-      return false;
-    }
-  }
-
-  /**
-   * Checks if TCP client is connected
-   * 
-   * @returns boolean - Connection status
-   */
-  isConnected(): boolean {
-    // Note: ClientProxy doesn't expose connection status directly
-    // This is a simplified check - in production, you might want to implement
-    // a more sophisticated connection monitoring mechanism
-    return !!this.client;
   }
 } 

@@ -24,48 +24,31 @@ import {
 
 const PhishedPage: React.FC = () => {
   const { attemptId } = useParams<{ attemptId: string }>();
-  const [isTracked, setIsTracked] = useState(false);
   const [isValidAttempt, setIsValidAttempt] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Track the click and validate attempt ID when component mounts
-    if (attemptId && !isTracked) {
-      // Call backend API to mark as clicked and validate ID
-      fetch(`http://localhost:3002/api/phishing/api/click/${attemptId}`, {
-        method: 'GET',
-      })
-      .then(response => {
-        if (response.ok) {
-          // Valid attempt ID
-          setIsValidAttempt(true);
-        } else if (response.status === 404) {
-          // Attempt not found
-          setIsValidAttempt(false);
-        } else {
-          // Other error, don't show the page to prevent abuse
-          setIsValidAttempt(false);
-        }
-        setIsTracked(true);
-        setIsLoading(false);
-      })
-      .catch(error => {
-        console.error('Error tracking click:', error);
-        // On error, don't show the page to prevent abuse
+    // Simple validation: check if attemptId exists and looks like a MongoDB ObjectId
+    // The click tracking already happened when user was redirected here from /phishing/click/:attemptId
+    if (attemptId) {
+      // Basic MongoDB ObjectId validation (24 character hex string)
+      const mongoIdPattern = /^[0-9a-fA-F]{24}$/;
+      if (mongoIdPattern.test(attemptId)) {
+        setIsValidAttempt(true);
+      } else {
         setIsValidAttempt(false);
-        setIsLoading(false);
-      });
-    } else if (!attemptId) {
+      }
+    } else {
       setIsValidAttempt(false);
-      setIsLoading(false);
     }
-  }, [attemptId, isTracked]);
+    setIsLoading(false);
+  }, [attemptId]);
 
   // Show loading while validating
   if (isLoading) {
     return (
       <Container maxWidth="md" sx={{ mt: 8, textAlign: 'center' }}>
-        <Typography variant="h5">Validating...</Typography>
+        <Typography variant="h5">Loading...</Typography>
       </Container>
     );
   }

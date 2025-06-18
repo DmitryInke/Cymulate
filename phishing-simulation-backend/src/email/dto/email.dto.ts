@@ -68,7 +68,4 @@ export interface SendEmailResponse {
 export const TCP_PATTERNS = {
   /** Pattern for sending phishing emails */
   SEND_PHISHING_EMAIL: 'send_phishing_email',
-  
-  /** Pattern for health checks between services */
-  HEALTH_CHECK: 'health_check',
 } as const; 

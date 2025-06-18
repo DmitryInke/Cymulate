@@ -7,7 +7,6 @@ import {
   UseGuards,
   Request,
   BadRequestException,
-  NotFoundException,
   Res,
 } from '@nestjs/common';
 import { Response } from 'express';
@@ -46,11 +45,6 @@ export class PhishingController {
     return this.phishingService.getAllAttempts(req.user.id);
   }
 
-  @Get('attempts/:id')
-  async getAttempt(@Param('id') id: string, @Request() req: any) {
-    return this.phishingService.getAttemptById(id, req.user.id);
-  }
-
   /**
    * Public endpoint for tracking phishing link clicks
    * No authentication required - called from email links
@@ -82,58 +76,5 @@ export class PhishingController {
   @Get('templates')
   async getAllTemplates(): Promise<any[]> {
     return this.phishingService.getAllTemplates();
-  }
-
-  /**
-   * Get template by ID
-   * @param templateId - Template identifier
-   * @returns Single email template or 404 if not found
-   */
-  @Get('templates/:id')
-  async getTemplateById(@Param('id') templateId: string): Promise<any> {
-    const template = await this.phishingService.getTemplateById(templateId);
-    
-    if (!template) {
-      throw new NotFoundException('Template not found');
-    }
-    
-    return template;
-  }
-
-  /**
-   * Get templates by category
-   * @param category - Template category (security, social, urgency, reward)
-   * @returns Array of templates in the specified category
-   */
-  @Get('templates/category/:category')
-  async getTemplatesByCategory(@Param('category') category: string): Promise<any[]> {
-    const validCategories = ['security', 'social', 'urgency', 'reward', 'custom'];
-    
-    if (!validCategories.includes(category)) {
-      throw new BadRequestException(`Invalid category. Must be one of: ${validCategories.join(', ')}`);
-    }
-    
-    return this.phishingService.getTemplatesByCategory(category as any);
-  }
-
-  /**
-   * API endpoint for tracking phishing link clicks from frontend
-   * Returns JSON response for validation
-   *
-   * @param attemptId - MongoDB ObjectId of the phishing attempt
-   * @returns Success/failure status
-   */
-  @Public()
-  @Get('api/click/:attemptId')
-  async apiTrackClick(@Param('attemptId') attemptId: string) {
-    try {
-      await this.phishingService.markAsClicked(attemptId);
-      return { success: true, message: 'Click tracked successfully' };
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException('Phishing attempt not found');
-      }
-      throw error;
-    }
   }
 }
