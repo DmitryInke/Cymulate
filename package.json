@@ -1,0 +1,31 @@
+{
+  "name": "phishing-simulation-app",
+  "version": "1.0.0",
+  "description": "Phishing simulation and awareness web application",
+  "private": true,
+  "workspaces": [
+    "phishing-simulation-backend",
+    "phishing-management-backend",
+    "phishing-frontend"
+  ],
+  "scripts": {
+    "install:all": "npm install && npm run install:simulation && npm run install:management && npm run install:frontend",
+    "install:simulation": "cd phishing-simulation-backend && npm install",
+    "install:management": "cd phishing-management-backend && npm install", 
+    "install:frontend": "cd phishing-frontend && npm install",
+    "dev": "concurrently \"npm run dev:simulation\" \"npm run dev:management\" \"npm run dev:frontend\"",
+    "dev:simulation": "cd phishing-simulation-backend && npm run start:dev",
+    "dev:management": "cd phishing-management-backend && npm run start:dev",
+    "dev:frontend": "cd phishing-frontend && npm run dev",
+    "build": "npm run build:simulation && npm run build:management && npm run build:frontend",
+    "build:simulation": "cd phishing-simulation-backend && npm run build",
+    "build:management": "cd phishing-management-backend && npm run build",
+    "build:frontend": "cd phishing-frontend && npm run build"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": ["phishing", "simulation", "security", "nestjs", "react"],
+  "author": "",
+  "license": "MIT"
+} 

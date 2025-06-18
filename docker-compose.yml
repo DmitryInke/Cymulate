@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: phishing-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: phishing_app
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - phishing-network
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: phishing-mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"   # SMTP port
+      - "8025:8025"   # Web UI port
+    networks:
+      - phishing-network
+
+volumes:
+  mongodb_data:
+    driver: local
+
+networks:
+  phishing-network:
+    driver: bridge 
