@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
+import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -22,6 +23,9 @@ async function bootstrap() {
 
   // Enable global exception filter
   app.useGlobalFilters(new GlobalExceptionFilter());
+
+  // Enable global logging interceptor
+  app.useGlobalInterceptors(new LoggingInterceptor());
 
   // Global prefix
   app.setGlobalPrefix('api');

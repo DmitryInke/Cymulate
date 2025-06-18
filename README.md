@@ -39,19 +39,31 @@ CLICK_TRACKING_BASE_URL=http://localhost:3002/api/phishing/click
 
 ### 3. Install Dependencies
 ```bash
-npm run install:all
+# Install all services
+npm run install:management
+npm run install:simulation
+npm run install:frontend
 ```
 
 ### 4. Start Services
 ```bash
-# All services
-npm run dev
+# Start infrastructure + all services (Backend + Frontend)
+npm run dev:all
 
 # Or individual services
 npm run dev:management    # Port 3002
 npm run dev:simulation    # TCP Port 3333  
 npm run dev:frontend      # Port 3000
+
+# Docker utilities
+npm run docker:up         # Start MongoDB + MailHog
+npm run docker:down       # Stop all containers
 ```
+
+### 5. Access the Application
+- **Frontend UI:** http://localhost:3000 (React App)
+- **Management API:** http://localhost:3002
+- **MailHog UI:** http://localhost:8025 (View sent emails)
 
 ## Architecture
 
@@ -59,7 +71,7 @@ npm run dev:frontend      # Port 3000
 - **MailHog SMTP Server:** Port 1025 (SMTP), Port 8025 (Web UI)
 - **Management Backend:** Port 3002 (Authentication, CRUD, HTTP API)
 - **Simulation Backend:** TCP Port 3333 (Email sending microservice)
-- **Frontend:** Port 3000 (React app - coming soon)
+- **Frontend:** Port 3000 (React app with Material-UI)
 
 ## API Endpoints
 
@@ -76,4 +88,35 @@ npm run dev:frontend      # Port 3000
 
 ### Development Tools
 - **MailHog Web UI:** http://localhost:8025 - View sent emails
-- **MongoDB:** mongodb://localhost:27017/phishing_app 
+- **MongoDB:** mongodb://localhost:27017/phishing_app
+
+## Testing Complete Workflow
+
+1. Open http://localhost:3000 in your browser
+2. Register a new admin user or login
+3. Use the phishing simulation interface to:
+   - Enter recipient email address
+   - Customize email subject and HTML content
+   - Send phishing attempt
+4. Check MailHog UI (http://localhost:8025) to see the sent email
+5. Click the tracking link in the email to test status updates
+6. Refresh the attempts table to see status changes (PENDING → SENT → CLICKED)
+
+## Features
+
+### Frontend (React + TypeScript + Material-UI)
+- ✅ User authentication (register/login)
+- ✅ Responsive design with Material-UI components
+- ✅ Phishing attempt creation form
+- ✅ Real-time attempts table with status tracking
+- ✅ Beautiful, intuitive interface
+- ✅ Error handling and loading states
+
+### Backend Features
+- ✅ JWT-based authentication
+- ✅ MongoDB data persistence
+- ✅ TCP microservice architecture
+- ✅ Email sending with Nodemailer
+- ✅ Click tracking system
+- ✅ RESTful API design
+- ✅ Comprehensive error handling 

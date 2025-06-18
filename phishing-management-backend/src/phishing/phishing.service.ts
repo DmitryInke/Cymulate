@@ -5,6 +5,7 @@ import { PhishingAttempt, PhishingAttemptDocument, PhishingStatus } from './phis
 import { CreatePhishingAttemptDto } from './dto/create-phishing-attempt.dto';
 import { TcpClientService } from '../common/services/tcp-client.service';
 import { SendPhishingEmailDto } from '../common/dto/tcp-communication.dto';
+import { TemplateService, EmailTemplate } from './templates/email-templates';
 
 @Injectable()
 export class PhishingService {
@@ -18,25 +19,21 @@ export class PhishingService {
     createPhishingAttemptDto: CreatePhishingAttemptDto,
     userId: string,
   ): Promise<PhishingAttempt> {
-    // Default email content if not provided
-    const defaultSubject = 'Urgent: Account Verification Required';
-    const defaultContent = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #d32f2f;">Account Verification Required</h2>
-        <p>Dear User,</p>
-        <p>We've detected unusual activity on your account. Please verify your identity by clicking the link below:</p>
-        <div style="text-align: center; margin: 20px 0;">
-          <a href="{{CLICK_LINK}}" style="background-color: #1976d2; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Verify Account</a>
-        </div>
-        <p>If you don't verify within 24 hours, your account will be suspended.</p>
-        <p>Best regards,<br>Security Team</p>
-      </div>
-    `;
+    // Use default template if content/subject not provided
+    const defaultTemplate = TemplateService.getDefaultTemplate();
+
+    // Validate custom content if provided
+    if (createPhishingAttemptDto.emailContent) {
+      const validation = TemplateService.validateTemplate(createPhishingAttemptDto.emailContent);
+      if (!validation.valid) {
+        throw new BadRequestException(`Invalid email template: ${validation.errors.join(', ')}`);
+      }
+    }
 
     const phishingAttempt = new this.phishingAttemptModel({
       recipientEmail: createPhishingAttemptDto.recipientEmail,
-      emailContent: createPhishingAttemptDto.emailContent || defaultContent,
-      subject: createPhishingAttemptDto.subject || defaultSubject,
+      emailContent: createPhishingAttemptDto.emailContent || defaultTemplate.content,
+      subject: createPhishingAttemptDto.subject || defaultTemplate.subject,
       createdBy: userId,
       status: PhishingStatus.PENDING,
     });
@@ -133,5 +130,31 @@ export class PhishingService {
     attempt.clickedAt = new Date();
     
     return attempt.save();
+  }
+
+  /**
+   * Get all available email templates
+   * @returns Array of EmailTemplate objects
+   */
+  async getAllTemplates(): Promise<EmailTemplate[]> {
+    return TemplateService.getAllTemplates();
+  }
+
+  /**
+   * Get template by ID
+   * @param templateId - Template identifier
+   * @returns EmailTemplate or null if not found
+   */
+  async getTemplateById(templateId: string): Promise<EmailTemplate | null> {
+    return TemplateService.getTemplateById(templateId);
+  }
+
+  /**
+   * Get templates by category
+   * @param category - Template category
+   * @returns Array of EmailTemplate objects in the specified category
+   */
+  async getTemplatesByCategory(category: EmailTemplate['category']): Promise<EmailTemplate[]> {
+    return TemplateService.getTemplatesByCategory(category);
   }
 } 
