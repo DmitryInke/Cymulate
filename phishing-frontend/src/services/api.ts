@@ -73,16 +73,6 @@ export const phishingAPI = {
     const response = await api.get('/phishing/templates');
     return response.data;
   },
-
-  getTemplateById: async (id: string): Promise<EmailTemplate> => {
-    const response = await api.get(`/phishing/templates/${id}`);
-    return response.data;
-  },
-
-  getTemplatesByCategory: async (category: string): Promise<EmailTemplate[]> => {
-    const response = await api.get(`/phishing/templates/category/${category}`);
-    return response.data;
-  },
 };
 
 export default api; 
