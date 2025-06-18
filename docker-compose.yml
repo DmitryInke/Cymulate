@@ -1,19 +1,21 @@
-version: '3.8'
-
 services:
+  # MongoDB Database
   mongodb:
     image: mongo:latest
     container_name: phishing-mongodb
     restart: unless-stopped
+    env_file:
+      - .env
     ports:
       - "27017:27017"
     environment:
-      MONGO_INITDB_DATABASE: phishing_app
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
     volumes:
       - mongodb_data:/data/db
     networks:
       - phishing-network
 
+  # MailHog for email testing
   mailhog:
     image: mailhog/mailhog:latest
     container_name: phishing-mailhog
@@ -21,6 +23,71 @@ services:
     ports:
       - "1025:1025"   # SMTP port
       - "8025:8025"   # Web UI port
+    networks:
+      - phishing-network
+
+  # Phishing Simulation Backend (TCP Microservice)
+  simulation-backend:
+    build:
+      context: ./phishing-simulation-backend
+    container_name: phishing-simulation-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      TCP_HOST: ${SIMULATION_TCP_HOST}
+      TCP_PORT: ${SIMULATION_TCP_PORT}
+      EMAIL_HOST: ${EMAIL_HOST}
+      EMAIL_PORT: ${EMAIL_PORT}
+      EMAIL_FROM: ${EMAIL_FROM}
+      CLICK_TRACKING_BASE_URL: ${CLICK_TRACKING_BASE_URL}
+    ports:
+      - "${SIMULATION_TCP_PORT}:${SIMULATION_TCP_PORT}"
+    depends_on:
+      - mailhog
+    networks:
+      - phishing-network
+
+  # Management Backend (REST API)
+  management-backend:
+    build:
+      context: ./phishing-management-backend
+    container_name: phishing-management-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: ${MANAGEMENT_PORT}
+      MONGODB_URI: ${MONGODB_URI}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
+      CORS_ORIGIN: ${CORS_ORIGIN}
+      TCP_HOST: ${TCP_HOST}
+      TCP_PORT: ${TCP_PORT}
+    ports:
+      - "${MANAGEMENT_PORT}:${MANAGEMENT_PORT}"
+    depends_on:
+      - mongodb
+      - simulation-backend
+    networks:
+      - phishing-network
+
+  # Frontend (React Application)
+  frontend:
+    build:
+      context: ./phishing-frontend
+    container_name: phishing-frontend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - REACT_APP_API_URL=http://localhost:3002/api
+    ports:
+      - "${FRONTEND_PORT}:3000"
+    depends_on:
+      - management-backend
     networks:
       - phishing-network
 

@@ -1,122 +1,286 @@
-# Phishing Simulation App
+# 🎯 Phishing Simulation Platform
 
-## Quick Start
+Full-featured platform for phishing attack simulation and cybersecurity awareness training.
 
-### 1. Start Development Services
-```bash
-# Start MongoDB and MailHog SMTP server
-docker-compose up -d
+## 📋 Description
 
-# Or start individual services:
-docker-compose up mongodb mailhog -d
+The system consists of three main components:
+- **Management Backend** (NestJS) - REST API for campaign management
+- **Simulation Backend** (NestJS TCP) - Microservice for email sending
+- **Frontend** (React + TypeScript) - Web interface for users
+
+## 🏗️ Architecture
+
+```
+┌─────────────────┐    ┌──────────────────┐    ┌────────────────┐
+│   React Frontend│    │ Management       │    │ Simulation     │
+│   (Port 3000)   │◄───┤ Backend          │◄───┤ Backend        │
+│                 │    │ (Port 3002)      │    │ (TCP 3333)     │
+└─────────────────┘    └──────────────────┘    └────────────────┘
+                                │                        │
+                                ▼                        ▼
+                       ┌─────────────────┐    ┌────────────────┐
+                       │    MongoDB      │    │    MailHog     │
+                       │  (Port 27017)   │    │ (Ports 1025/   │
+                       │                 │    │      8025)     │
+                       └─────────────────┘    └────────────────┘
 ```
 
-### 2. Create .env files
-Copy environment variables:
+## 🚀 Quick Start
 
-**phishing-management-backend/.env:**
-```
-PORT=3002
-NODE_ENV=development
-MONGODB_URI=mongodb://localhost:27017/phishing_app
+### Requirements
+- Docker
+- Docker Compose
+
+### Setup
+1. **Clone the repository**
+   ```bash
+   git clone <repo-url>
+   cd Cymulate
+   ```
+
+2. **Configure environment variables**
+   ```bash
+   # Copy example environment file
+   cp env.example .env
+   
+   # Edit .env with your preferred settings (optional)
+   # The default values work for local development
+   ```
+
+3. **Start the entire stack**
+   ```bash
+   # Start all services
+   docker-compose up --build
+   
+   # Or run in background
+   docker-compose up --build -d
+   ```
+
+### Available services
+- **Frontend**: http://localhost:3000
+- **Management API**: http://localhost:3002
+- **MailHog Web UI**: http://localhost:8025
+- **MongoDB**: localhost:27017
+
+## ⚙️ Configuration
+
+### Environment Variables
+All configuration is managed through the `.env` file:
+
+```env
+# MongoDB Configuration
+MONGO_INITDB_DATABASE=phishing_app
+
+# Management Backend Configuration
+MANAGEMENT_PORT=3002
+MONGODB_URI=mongodb://mongodb:27017/phishing_app
 JWT_SECRET=your-super-secret-jwt-key-change-in-production
 JWT_EXPIRES_IN=7d
-TCP_HOST=localhost
-TCP_PORT=3333
 CORS_ORIGIN=http://localhost:3000
-```
 
-**phishing-simulation-backend/.env:**
-```
-NODE_ENV=development
-TCP_HOST=localhost
-TCP_PORT=3333
-EMAIL_HOST=localhost
+# Simulation Backend Configuration
+SIMULATION_TCP_HOST=0.0.0.0
+SIMULATION_TCP_PORT=3333
+EMAIL_HOST=mailhog
 EMAIL_PORT=1025
 EMAIL_FROM=phishing-test@example.com
 CLICK_TRACKING_BASE_URL=http://localhost:3002/api/phishing/click
+
+# Frontend Configuration
+FRONTEND_PORT=3000
+
+# Service Communication
+TCP_HOST=simulation-backend
+TCP_PORT=3333
+
+# Development Environment
+NODE_ENV=development
 ```
 
-### 3. Install Dependencies
+You can customize these values by editing the `.env` file before running `docker-compose up`.
+
+### JWT Configuration
+- **JWT_SECRET**: Secret key for signing JWT tokens (change in production!)
+- **JWT_EXPIRES_IN**: Token expiration time (7d = 7 days, 1h = 1 hour, 30m = 30 minutes)
+
+## 📊 Features
+
+### 🔐 Authentication
+- User registration and authorization
+- JWT tokens with configurable expiration
+- Protected routes
+
+### 📧 Email Templates
+- 5 pre-built templates:
+  - 🔒 **Security** - Security notifications
+  - 👥 **Social** - Social engineering
+  - ⚡ **Urgency** - Urgent requests
+  - 🎁 **Reward** - Rewards and prizes
+
+### 📈 Tracking
+- Email delivery status
+- Click tracking
+- Educational page on click
+
+### 🎨 UI/UX
+- Material-UI design
+- Responsive layout
+- Real-time email preview
+
+## 🔧 Development
+
+### Project Structure
+```
+Cymulate/
+├── docker-compose.yml           # Main Docker Compose file
+├── .env                   # Environment variables
+├── env.example                  # Example environment file
+├── phishing-frontend/           # React application
+│   ├── Dockerfile
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── context/
+│   │   └── services/
+│   └── package.json
+├── phishing-management-backend/ # REST API
+│   ├── Dockerfile
+│   ├── src/
+│   │   ├── auth/
+│   │   ├── phishing/
+│   │   ├── users/
+│   │   └── common/
+│   └── package.json
+└── phishing-simulation-backend/ # TCP microservice
+    ├── Dockerfile
+    ├── src/
+    │   └── email/
+    └── package.json
+```
+
+### API Endpoints
+
+#### Authentication
+```
+POST /api/auth/register    # User registration
+POST /api/auth/login       # User login
+GET  /api/auth/me          # Token verification
+```
+
+#### Phishing Campaigns
+```
+POST /api/phishing/attempts           # Create campaign
+GET  /api/phishing/attempts           # List campaigns
+POST /api/phishing/attempts/:id/send  # Send email
+GET  /api/phishing/click/:id          # Click tracking
+```
+
+#### Templates
+```
+GET /api/phishing/templates  # List templates
+```
+
+## 📝 Usage
+
+### 1. Create Campaign
+1. Go to http://localhost:3000
+2. Register or log in
+3. Select email template
+4. Enter recipient email
+5. Click "Send Phishing Email"
+
+### 2. Check Email
+1. Open MailHog: http://localhost:8025
+2. Find the sent email
+3. Click the link in the email
+
+### 3. Educational Page
+After clicking, the user will see an educational page explaining phishing attacks.
+
+## 🛠️ Docker Commands
+
 ```bash
-# Install all services
-npm run install:management
-npm run install:simulation
-npm run install:frontend
+# Start all services
+docker-compose up --build
+
+# Stop services
+docker-compose down
+
+# Rebuild specific service
+docker-compose build frontend
+docker-compose build management-backend
+docker-compose build simulation-backend
+
+# View logs
+docker-compose logs -f
+docker-compose logs -f management-backend
+
+# Clean volumes (delete MongoDB data)
+docker-compose down -v
 ```
 
-### 4. Start Services
-```bash
-# Start infrastructure + all services (Backend + Frontend)
-npm run dev:all
+## 📊 Monitoring
 
-# Or individual services
-npm run dev:management    # Port 3002
-npm run dev:simulation    # TCP Port 3333  
-npm run dev:frontend      # Port 3000
+### Logs
+All services use structured logging:
+- HTTP requests with execution time
+- TCP communication
+- Email sending
+- Detailed error information
 
-# Docker utilities
-npm run docker:up         # Start MongoDB + MailHog
-npm run docker:down       # Stop all containers
+### Status Types
+- 🟡 **PENDING** - Campaign created
+- 🔵 **SENT** - Email sent
+- 🎯 **CLICKED** - User clicked
+- ❌ **FAILED** - Sending failed
+
+## 🚨 Important Notes
+
+### Security
+- All API endpoints are JWT protected
+- Tokens are automatically verified
+- Click tracking without authentication (for email links)
+
+### Email Testing
+- Uses MailHog for safe testing
+- All emails remain local
+- Web UI for email viewing
+
+### Performance
+- TCP communication between backend services
+- Optimized MongoDB queries
+- Browser-level caching
+
+## 🔧 Customization
+
+### Changing Ports
+Edit `.env` file:
+```env
+FRONTEND_PORT=3001        # Change frontend port
+MANAGEMENT_PORT=3003      # Change backend port
+SIMULATION_TCP_PORT=3334  # Change TCP port
 ```
 
-### 5. Access the Application
-- **Frontend UI:** http://localhost:3000 (React App)
-- **Management API:** http://localhost:3002
-- **MailHog UI:** http://localhost:8025 (View sent emails)
+### Changing Database
+Edit `.env` file:
+```env
+MONGODB_URI=mongodb://your-mongo-host:27017/your_db
+```
 
-## Architecture
+### JWT Settings
+Edit `.env` file:
+```env
+JWT_SECRET=your-256-bit-secret-key
+JWT_EXPIRES_IN=1h         # 1 hour
+JWT_EXPIRES_IN=30m        # 30 minutes
+JWT_EXPIRES_IN=7d         # 7 days
+```
 
-- **MongoDB Database:** `phishing_app` (Port 27017)
-- **MailHog SMTP Server:** Port 1025 (SMTP), Port 8025 (Web UI)
-- **Management Backend:** Port 3002 (Authentication, CRUD, HTTP API)
-- **Simulation Backend:** TCP Port 3333 (Email sending microservice)
-- **Frontend:** Port 3000 (React app with Material-UI)
+### Adding Email Templates
+Templates are managed in the backend code at:
+`phishing-management-backend/src/phishing/templates/email-templates.ts`
 
-## API Endpoints
+---
 
-### Management Backend (3002)
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-- `GET /api/phishing/attempts` - Get all attempts
-- `POST /api/phishing/attempts` - Create attempt
-- `POST /api/phishing/attempts/:id/send` - Send phishing email
-
-### Simulation Backend (TCP 3333)
-- `send_phishing_email` - TCP message pattern for sending emails
-- `health_check` - TCP message pattern for health monitoring
-
-### Development Tools
-- **MailHog Web UI:** http://localhost:8025 - View sent emails
-- **MongoDB:** mongodb://localhost:27017/phishing_app
-
-## Testing Complete Workflow
-
-1. Open http://localhost:3000 in your browser
-2. Register a new admin user or login
-3. Use the phishing simulation interface to:
-   - Enter recipient email address
-   - Customize email subject and HTML content
-   - Send phishing attempt
-4. Check MailHog UI (http://localhost:8025) to see the sent email
-5. Click the tracking link in the email to test status updates
-6. Refresh the attempts table to see status changes (PENDING → SENT → CLICKED)
-
-## Features
-
-### Frontend (React + TypeScript + Material-UI)
-- ✅ User authentication (register/login)
-- ✅ Responsive design with Material-UI components
-- ✅ Phishing attempt creation form
-- ✅ Real-time attempts table with status tracking
-- ✅ Beautiful, intuitive interface
-- ✅ Error handling and loading states
-
-### Backend Features
-- ✅ JWT-based authentication
-- ✅ MongoDB data persistence
-- ✅ TCP microservice architecture
-- ✅ Email sending with Nodemailer
-- ✅ Click tracking system
-- ✅ RESTful API design
-- ✅ Comprehensive error handling 
+**🎯 Ready! The system is fully configured and ready to use.** 
