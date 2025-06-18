@@ -13,7 +13,7 @@ import { Response } from 'express';
 import { PhishingService } from './phishing.service';
 import { CreatePhishingAttemptDto } from './dto/create-phishing-attempt.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { Public } from '../auth/decorators/skip-auth.decorator';
+import { Public } from '../auth/decorators/public.decorator';
 
 @Controller('phishing')
 @UseGuards(JwtAuthGuard)
