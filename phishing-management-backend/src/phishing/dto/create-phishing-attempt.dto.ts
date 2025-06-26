@@ -42,15 +42,3 @@ export class CreatePhishingAttemptDto {
   @MinLength(1, { message: 'Subject cannot be empty if provided' })
   subject?: string;
 }
-
-/**
- * Data Transfer Object for sending phishing emails to simulation service
- * Used internally for communication between management and simulation services
- * 
- * Validation rules:
- * - All fields are required for email sending
- * - Recipient email must be valid format
- * - Content and subject must be non-empty strings
- * - Attempt ID must be valid for tracking
- */
- 

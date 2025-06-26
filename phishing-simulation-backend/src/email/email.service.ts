@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import { SendPhishingEmailDto, SendEmailResponse } from './dto/email.dto';
@@ -14,12 +14,20 @@ import { SendPhishingEmailDto, SendEmailResponse } from './dto/email.dto';
  * - Template processing for dynamic content
  */
 @Injectable()
-export class EmailService {
+export class EmailService implements OnModuleInit {
   private readonly logger = new Logger(EmailService.name);
   private transporter: nodemailer.Transporter;
 
   constructor(private readonly configService: ConfigService) {
     this.initializeTransporter();
+  }
+
+  /**
+   * Module initialization lifecycle hook
+   * Verifies SMTP connection after module initialization
+   */
+  async onModuleInit(): Promise<void> {
+    await this.verifyConnection();
   }
 
   /**
@@ -50,9 +58,6 @@ export class EmailService {
     }
 
     this.transporter = nodemailer.createTransport(transportConfig);
-
-    // Verify SMTP connection on startup
-    this.verifyConnection();
   }
 
   /**
