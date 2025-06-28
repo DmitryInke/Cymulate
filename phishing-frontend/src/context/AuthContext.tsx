@@ -41,14 +41,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    // Only verify token if we're not on login/register pages
-    const currentPath = window.location.pathname;
-    if (currentPath !== '/login' && currentPath !== '/register') {
-      verifyStoredToken();
-    } else {
-      // On login/register pages, just set loading to false
-      setIsLoading(false);
-    }
+    // This ensures authenticated users are redirected away from auth pages
+    verifyStoredToken();
   }, [verifyStoredToken]);
 
   const login = async (email: string, password: string): Promise<void> => {
