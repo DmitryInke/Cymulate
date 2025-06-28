@@ -177,7 +177,15 @@ const PhishingSimulationPage: React.FC = () => {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString();
+    if (!dateString) return 'N/A';
+    
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return 'Invalid Date';
+      return date.toLocaleString();
+    } catch {
+      return 'Invalid Date';
+    }
   };
 
   // Show loading state during initial load

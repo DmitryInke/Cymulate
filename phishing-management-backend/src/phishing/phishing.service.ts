@@ -98,7 +98,7 @@ export class PhishingService {
   async getAllAttempts(userId: string): Promise<PhishingAttempt[]> {
     return this.phishingAttemptModel
       .find({ createdBy: userId })
-      .select('recipientEmail subject status createdAt clickedAt sentAt') // Only select needed fields
+      .select('recipientEmail subject status createdAt updatedAt clickedAt sentAt') // Only select needed fields
       .sort({ createdAt: -1 })
       .lean() // Return plain objects instead of Mongoose documents (faster)
       .exec();
