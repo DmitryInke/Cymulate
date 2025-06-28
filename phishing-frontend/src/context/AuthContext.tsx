@@ -10,7 +10,6 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
   // Use ref to prevent multiple token verification calls
@@ -25,31 +24,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isVerifyingToken.current = true;
     
     try {
-      const savedToken = localStorage.getItem('token');
-      const savedUser = localStorage.getItem('user');
+      // Try to verify token with backend (token is in HttpOnly cookie)
+      const response = await authAPI.verifyToken();
       
-      if (savedToken && savedUser) {
-        try {
-          // Verify token with backend
-          const response = await authAPI.verifyToken();
-          
-          // Token is valid, set user and token
-          setToken(savedToken);
-          setUser(response.user);
-          console.log('✅ Token verified successfully');
-        } catch (error) {
-          // Token is invalid, clear storage
-          console.warn('⚠️ Stored token is invalid, clearing auth data');
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          setToken(null);
-          setUser(null);
-        }
-      } else {
-        console.log('ℹ️ No stored token found');
-      }
+      // Token is valid, set user
+      setUser(response.user);
+      console.log('✅ Token verified successfully');
     } catch (error) {
-      console.error('❌ Error during token verification:', error);
+      // Token is invalid or doesn't exist
+      console.warn('⚠️ No valid token found');
+      setUser(null);
     } finally {
       setIsLoading(false);
       isVerifyingToken.current = false;
@@ -65,13 +49,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoading(true);
     try {
       const response = await authAPI.login(email, password);
-      const { accessToken, user: userData } = response;
+      const { user: userData } = response;
       
-      setToken(accessToken);
       setUser(userData);
-      
-      localStorage.setItem('token', accessToken);
-      localStorage.setItem('user', JSON.stringify(userData));
       
       console.log('✅ User logged in successfully:', userData.email);
     } catch (error) {
@@ -86,13 +66,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoading(true);
     try {
       const response = await authAPI.register(email, password);
-      const { accessToken, user: userData } = response;
+      const { user: userData } = response;
       
-      setToken(accessToken);
       setUser(userData);
-      
-      localStorage.setItem('token', accessToken);
-      localStorage.setItem('user', JSON.stringify(userData));
       
       console.log('✅ User registered successfully:', userData.email);
     } catch (error) {
@@ -103,17 +79,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const logout = useCallback((): void => {
-    setUser(null);
-    setToken(null);
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    console.log('👋 User logged out');
+  const logout = useCallback(async (): Promise<void> => {
+    try {
+      await authAPI.logout(); // Call backend to clear HttpOnly cookie
+      setUser(null);
+      console.log('👋 User logged out');
+    } catch (error) {
+      // Even if logout API fails, clear local state
+      console.warn('⚠️ Logout API failed, clearing local state');
+      setUser(null);
+    }
   }, []);
 
   const value: AuthContextType = {
     user,
-    token,
     login,
     register,
     logout,

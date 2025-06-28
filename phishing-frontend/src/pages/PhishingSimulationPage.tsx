@@ -203,7 +203,7 @@ const PhishingSimulationPage: React.FC = () => {
           <Typography variant="body2" sx={{ mr: 2 }}>
             Welcome, {user?.email}
           </Typography>
-          <IconButton color="inherit" onClick={logout}>
+          <IconButton color="inherit" onClick={() => logout()}>
             <LogoutIcon />
           </IconButton>
         </Toolbar>

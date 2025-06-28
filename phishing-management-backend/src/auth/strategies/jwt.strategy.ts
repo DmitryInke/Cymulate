@@ -23,7 +23,7 @@ export interface JwtPayload {
  * Validates JWT tokens and extracts user information for protected routes
  * 
  * Features:
- * - Extracts JWT from Authorization header (Bearer token)
+ * - Extracts JWT from HttpOnly cookies (accessToken)
  * - Validates token signature and expiration
  * - Retrieves current user data from database
  * - Transforms user data for request context
@@ -34,8 +34,12 @@ export interface JwtPayload {
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly usersService: UsersService) {
     super({
-      // Extract JWT token from Authorization header as Bearer token
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      // Extract JWT token from cookies instead of Authorization header
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (request) => {
+          return request?.cookies?.accessToken;
+        },
+      ]),
       // Reject expired tokens (security best practice)
       ignoreExpiration: false,
       // Secret key for token signature verification

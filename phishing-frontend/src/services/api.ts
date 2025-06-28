@@ -6,28 +6,18 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3002/api
 // Create axios instance with default config
 const api = axios.create({
   baseURL: API_BASE_URL,
+  withCredentials: true, // Include cookies in requests
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Add interceptor to include JWT token in requests
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
 
 // Add response interceptor to handle 401 errors (invalid/expired token)
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token is invalid/expired, clear auth data and redirect to login
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
       window.location.href = '/login';
     }
     return Promise.reject(error);
@@ -48,6 +38,11 @@ export const authAPI = {
 
   verifyToken: async () => {
     const response = await api.get('/auth/me');
+    return response.data;
+  },
+
+  logout: async () => {
+    const response = await api.post('/auth/logout');
     return response.data;
   },
 };
