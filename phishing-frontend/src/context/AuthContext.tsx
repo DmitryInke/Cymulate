@@ -41,8 +41,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    // Check for existing token on app start and verify it - only once
-    verifyStoredToken();
+    // Only verify token if we're not on login/register pages
+    const currentPath = window.location.pathname;
+    if (currentPath !== '/login' && currentPath !== '/register') {
+      verifyStoredToken();
+    } else {
+      // On login/register pages, just set loading to false
+      setIsLoading(false);
+    }
   }, [verifyStoredToken]);
 
   const login = async (email: string, password: string): Promise<void> => {
@@ -89,6 +95,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.warn('⚠️ Logout API failed, clearing local state');
       setUser(null);
     }
+    // Always redirect to login after logout
+    window.location.href = '/login';
   }, []);
 
   const value: AuthContextType = {
