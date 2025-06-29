@@ -100,7 +100,6 @@ export class PhishingService {
       .find({ createdBy: userId })
       .select('recipientEmail subject status createdAt updatedAt clickedAt sentAt') // Only select needed fields
       .sort({ createdAt: -1 })
-      .lean() // Return plain objects instead of Mongoose documents (faster)
       .exec();
   }
 
